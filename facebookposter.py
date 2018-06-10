@@ -15,14 +15,24 @@ currentdatetime = datetime.now()
 # correct URL
 page = urlopen("https://alerts.weather.gov/cap/wwaatmget.php?x=NJZ020&y=0")
 
-#run xml through beautifulsoup
+# test URL
+#page = urlopen("https://alerts.weather.gov/cap/wwaatmget.php?x=CAZ522&y=0")
+
+#run xml through beautifulsoup and print
 soup = BeautifulSoup(page, "lxml")
-print (soup.prettify())
+#print (soup.prettify())
 
 # creates a list of the alert titles from the xml page
 alert_descripton_list = []
 for tag in soup.findAll('title'):
-    alert_descripton_list.append(str((tag.contents)))
+    alert_descripton_list.append(str(tag.contents))
+
+#creates a list of alert summaries from the xml page
+alert_summary_list = []
+for tag in soup.findAll('summary'):
+    alert_summary_list.append(str(tag.contents))
+
+firstSummary = alert_summary_list[0].strip("[]'")
 
 # checks for active alerts and ends program if there are no active alerts
 secondTitle = alert_descripton_list[1].strip("[]'")
@@ -45,7 +55,7 @@ for tag in soup.findAll('id'):
 # creates id object for duplicate alerts, if duplicate is found in log file program exits
 uniqueID = id_descripton_list[1]
 # test print
-print (uniqueID)
+#print (uniqueID)
 
 if uniqueID in open('E:\logs\staffordnwsweatherlogs.txt').read():
     f = open('E:\logs\staffordnwsweatherlogs.txt', 'a')
@@ -62,7 +72,7 @@ else:
     f.write('\n%s - New alert found: %s' % (currentdatetime, secondTitle))
     f.write ("\n%s" % (uniqueID))
     print ("New alert found - written to log")
-    status_update = ("Stafford Weather Alert: %s. Visit https://goo.gl/pAkZqg for more information." % (secondTitle))
+    status_update = ("Stafford Weather Alert: %s. \n %s" % (secondTitle, firstSummary))
 
 
 #post to facebook page wall
